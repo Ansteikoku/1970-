@@ -1,0 +1,18 @@
+body {
+  font-family: sans-serif;
+  background: #fff;
+  padding: 10px;
+}
+.topbar {
+  text-align: right;
+}
+textarea {
+  width: 300px;
+  height: 60px;
+}
+button {
+  margin-left: 5px;
+}
+#boardMenu button {
+  margin-right: 5px;
+}

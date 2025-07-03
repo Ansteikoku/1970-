@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>わかくさ掲示板</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="topbar">
+    <button onclick="logout()">ログアウト</button>
+  </div>
+  <h1>■ わかくさ掲示板</h1>
+  <div id="boardMenu"></div>
+  <h2>スレッド作成</h2>
+  <input type="text" id="name" placeholder="名前（省略可）">
+  <textarea id="content" placeholder="スレッド本文"></textarea>
+  <button onclick="createThread()">スレッドを立てる</button>
+  <h2>スレッド一覧</h2>
+  <div id="threadList"></div>
+</body>
+</html>
