@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ページ - わかくさ掲示板</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <h1>管理者専用ページ</h1>
+  <div>
+    <h2>板一覧（削除可能）</h2>
+    <div id="adminBoardList"></div>
+  </div>
+
+  <div style="margin-top:2em;">
+    <h2>スレッド一覧（削除可能）</h2>
+    <div id="adminThreadList"></div>
+  </div>
+
+  <div style="margin-top:2em;">
+    <h2>削除ログ</h2>
+    <ul id="deleteLog"></ul>
+  </div>
+
+  <button onclick="logout()">ログアウト</button>
+
+  <script>
+    if (localStorage.getItem("is_admin") !== "true") {
+      alert("このページは管理者専用です。");
+      location.href = "login.html";
+    }
+
+    async function loadBoardsForAdmin() {
+      const { data, error } = await supabase.from("boards").select("*").order("id");
+      if (error) {
+        document.getElementById("adminBoardList").innerHTML = "読み込みに失敗しました";
+        return;
+      }
+      document.getElementById("adminBoardList").innerHTML = data.map(b => 
+        `<div>
+          <strong>${b.name}</strong>
+          <button onclick="deleteBoard(${b.id}, '${b.name}')">削除</button>
+        </div>`
+      ).join("");
+    }
+
+    async function loadThreadsForAdmin() {
+      const { data, error } = await supabase.from("threads").select("*").order("created_at", { ascending: false });
+      if (error) {
+        document.getElementById("adminThreadList").innerHTML = "読み込みに失敗しました";
+        return;
+      }
+      document.getElementById("adminThreadList").innerHTML = data.map(t => 
+        `<div>
+          <strong>${t.content.slice(0, 30)}...</strong>
+          <button onclick="deleteThread(${t.id}, \`${t.content.slice(0, 30)}...\`)">削除</button>
+        </div>`
+      ).join("");
+    }
+
+    function logAction(action) {
+      const logList = document.getElementById("deleteLog");
+      const li = document.createElement("li");
+      li.textContent = `[${new Date().toLocaleString()}] ${action}`;
+      logList.prepend(li);
+    }
+
+    async function deleteBoard(id, name) {
+      if (!confirm(`板「${name}」を削除しますか？`)) return;
+      const { error } = await supabase.from("boards").delete().eq("id", id);
+      if (error) {
+        alert("削除に失敗しました: " + error.message);
+        return;
+      }
+      logAction(`板「${name}」を削除`);
+      loadBoardsForAdmin();
+    }
+
+    async function deleteThread(id, preview) {
+      if (!confirm(`スレッド「${preview}」を削除しますか？`)) return;
+      const { error } = await supabase.from("threads").delete().eq("id", id);
+      if (error) {
+        alert("削除に失敗しました: " + error.message);
+        return;
+      }
+      logAction(`スレッド「${preview}」を削除`);
+      loadThreadsForAdmin();
+    }
+
+    window.onload = () => {
+      loadBoardsForAdmin();
+      loadThreadsForAdmin();
+    };
+  </script>
+</body>
+</html>
